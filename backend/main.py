@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
+from puzzle import Puzzle, create_puzzle
 
 """
 Backend for Numberlink puzzle game
@@ -10,8 +11,6 @@ Supports basic routes with main solution/puzzle creation logic in separate files
 
 MIN_PUZZLE_SIZE = 4
 MAX_PUZZLE_SIZE = 10
-
-Puzzle = list[list[int]]
 
 
 class PuzzleResponse(BaseModel):
@@ -63,7 +62,7 @@ def create_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> PuzzleR
             detail=f"Difficulty must be between {MIN_PUZZLE_SIZE} and {MAX_PUZZLE_SIZE}",
         )
     # TODO: create the bloody puzzle
-    puzzle = [[i] + ([0] * (difficulty - 2)) + [i] for i in range(difficulty)]
+    puzzle = create_puzzle(grid_size=difficulty)
     db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=None))
 
     # eventually solve the puzzle
