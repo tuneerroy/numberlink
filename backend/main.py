@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+import random
 from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
@@ -26,7 +28,23 @@ class Item(BaseModel):
 
 db: list[Item] = []
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # TODO: should we read from a file or something?
+
+    # create 10 puzzle instances
+    for _ in range(10):
+        difficulty = random.randint(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE)
+        puzzle, solution = create_puzzle(grid_size=difficulty)
+        db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
+
+    yield
+
+    # TODO: do we want to dump the puzzles into a file or something?
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 def validate_puzzle_id(puzzle_id: int):
@@ -54,7 +72,9 @@ def get_solution(puzzle_id: int = Depends(validate_puzzle_id)) -> Puzzle:
 
 
 @app.post("/puzzle")  # basically requesting a new puzzle
-def create_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> PuzzleResponse:
+def request_puzzle(
+    difficulty: int, background_tasks: BackgroundTasks
+) -> PuzzleResponse:
     # should probably make it an ENUM ranging from easy to hard
     if difficulty < MIN_PUZZLE_SIZE or difficulty > MAX_PUZZLE_SIZE:
         raise HTTPException(
