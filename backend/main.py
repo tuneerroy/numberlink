@@ -68,6 +68,11 @@ app.add_middleware(
 )
 
 
+@app.get("/difficulty")
+def get_difficulty() -> dict:
+    return {"min": MIN_PUZZLE_SIZE, "max": MAX_PUZZLE_SIZE}
+
+
 @app.get("/puzzle")
 def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
     if difficulty < MIN_PUZZLE_SIZE or difficulty > MAX_PUZZLE_SIZE:
@@ -83,4 +88,5 @@ def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
     item = db_entry.items.pop()
     if not db_entry.actively_generating:
         background_tasks.add_task(fill_buffer, difficulty)
+
     return item
