@@ -5,6 +5,8 @@ from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from puzzle import Puzzle, create_puzzle
 
+from fastapi.middleware.cors import CORSMiddleware
+
 """
 Backend for Numberlink puzzle game
 
@@ -33,11 +35,16 @@ db: list[Item] = []
 async def lifespan(app: FastAPI):
     # TODO: should we read from a file or something?
 
+    difficulty = 8
+    puzzle, solution = create_puzzle(grid_size=difficulty)
+    db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
+    print(len(db))
+
     # create 10 puzzle instances
-    for _ in range(10):
-        difficulty = random.randint(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE)
-        puzzle, solution = create_puzzle(grid_size=difficulty)
-        db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
+    # for _ in range(10):
+    #     difficulty = random.randint(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE)
+    #     puzzle, solution = create_puzzle(grid_size=difficulty)
+    #     db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
 
     yield
 
@@ -45,6 +52,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def validate_puzzle_id(puzzle_id: int):
