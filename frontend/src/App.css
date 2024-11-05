@@ -37,3 +37,13 @@
     transform: rotate(360deg);
   }
 }
+
+.grid {
+  margin: 20px auto;
+  display: grid;
+  max-width: fit-content;
+}
+
+.cell {
+  cursor: pointer;
+}
