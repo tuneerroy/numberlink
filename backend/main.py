@@ -1,7 +1,6 @@
+from collections import deque
 from contextlib import asynccontextmanager
-import random
-from typing import Optional
-from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel
 from puzzle import Puzzle, create_puzzle
 
@@ -13,42 +12,49 @@ Backend for Numberlink puzzle game
 Supports basic routes with main solution/puzzle creation logic in separate files
 """
 
-MIN_PUZZLE_SIZE = 4
+MIN_PUZZLE_SIZE = 5
 MAX_PUZZLE_SIZE = 10
 
 
-class PuzzleResponse(BaseModel):
-    id: int
-    puzzle: Puzzle
-
-
 class Item(BaseModel):
-    difficulty: int  # grid size?
     puzzle: Puzzle
-    solution: Optional[Puzzle]
+    solution: Puzzle
 
 
-db: list[Item] = []
+class DbEntry(BaseModel):
+    items: deque[Item] = []
+    actively_generating: bool = False
+    buffer_size: int = 0
+
+
+db: list[DbEntry] = [DbEntry() for _ in range(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE + 1)]
+
+
+async def fill_buffer(difficulty: int):
+    db_index = difficulty - MIN_PUZZLE_SIZE
+    db_entry = db[db_index]
+    db_entry.actively_generating = True
+    while len(db_entry.items) < db_entry.buffer_size:
+        puzzle, solution = create_puzzle(grid_size=difficulty)
+        db_entry.items.append(Item(puzzle=puzzle, solution=solution))
+    db_entry.actively_generating = False
+
+
+async def initialize_db():
+    for i in range(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE + 1):
+        db_index = i - MIN_PUZZLE_SIZE
+        db[db_index].actively_generating = True
+
+    for difficulty in range(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE + 1):
+        await fill_buffer(difficulty)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # TODO: should we read from a file or something?
-
-    difficulty = 8
-    puzzle, solution = create_puzzle(grid_size=difficulty)
-    db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
-    print(len(db))
-
-    # create 10 puzzle instances
-    # for _ in range(10):
-    #     difficulty = random.randint(MIN_PUZZLE_SIZE, MAX_PUZZLE_SIZE)
-    #     puzzle, solution = create_puzzle(grid_size=difficulty)
-    #     db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=solution))
-
+    # initialize the db
+    # NOTE: intentionally don't await?
+    # await initialize_db()
     yield
-
-    # TODO: do we want to dump the puzzles into a file or something?
 
 
 app = FastAPI(lifespan=lifespan)
@@ -62,70 +68,19 @@ app.add_middleware(
 )
 
 
-def validate_puzzle_id(puzzle_id: int):
-    if puzzle_id < 0 or puzzle_id >= len(db):
-        raise HTTPException(status_code=404, detail="Item not found")
-    return puzzle_id
-
-
-async def solve_puzzle(puzzle_id: int):
-    def solve(puzzle: Puzzle): ...
-
-    if db[puzzle_id].solution is None:
-        db[puzzle_id].solution = solve(db[puzzle_id].puzzle)
-    return db[puzzle_id].solution
-
-
-@app.get("/puzzle/{puzzle_id}")
-def get_puzzle(puzzle_id: int = Depends(validate_puzzle_id)) -> Puzzle:
-    return db[puzzle_id].puzzle
-
-
-@app.get("/puzzles/{puzzle_id}/solution")
-def get_solution(puzzle_id: int = Depends(validate_puzzle_id)) -> Puzzle:
-    return db[puzzle_id].solution
-
-
-@app.post("/puzzle")  # basically requesting a new puzzle
-def request_puzzle(
-    difficulty: int, background_tasks: BackgroundTasks
-) -> PuzzleResponse:
-    # should probably make it an ENUM ranging from easy to hard
+@app.get("/puzzle")
+def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
     if difficulty < MIN_PUZZLE_SIZE or difficulty > MAX_PUZZLE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Difficulty must be between {MIN_PUZZLE_SIZE} and {MAX_PUZZLE_SIZE}",
-        )
-    # TODO: create the bloody puzzle
-    puzzle = create_puzzle(grid_size=difficulty)
-    db.append(Item(difficulty=difficulty, puzzle=puzzle, solution=None))
+        raise HTTPException(status_code=404, detail="Difficulty not supported")
 
-    # eventually solve the puzzle
-    background_tasks.add_task(solve_puzzle, len(db) - 1)
+    db_index = difficulty - MIN_PUZZLE_SIZE
+    db_entry = db[db_index]
+    if len(db_entry.items) == 0:
+        db_entry.buffer_size += 1
+        puzzle, solution = create_puzzle(grid_size=difficulty)
+        return Item(puzzle=puzzle, solution=solution)
 
-    return PuzzleResponse(id=len(db) - 1, puzzle=puzzle)
-
-
-@app.post("/puzzle/{puzzle_id}/validate")
-def validate_puzzle(
-    puzzle: Puzzle,
-    puzzle_id: int = Depends(validate_puzzle_id),
-):
-    solution = db[puzzle_id].solution
-    if solution is None:
-        # solve right now and return
-        solution = solve_puzzle(puzzle_id)
-    if puzzle == solution:
-        return {"message": "Puzzle is correct", "correct": True}
-    return {"message": "Puzzle is incorrect", "correct": False}
-
-
-@app.get("/puzzle/{puzzle_id}/hint")
-def get_hint(puzzle_id: int):
-    # TODO: implement hint logic
-
-    # TODO: first check if current puzzle is valid?
-
-    # NOTE: not sure we actually want to do this?
-
-    pass
+    item = db_entry.items.pop()
+    if not db_entry.actively_generating:
+        background_tasks.add_task(fill_buffer, difficulty)
+    return item

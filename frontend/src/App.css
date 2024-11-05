@@ -42,6 +42,7 @@
   margin: 20px auto;
   display: grid;
   max-width: fit-content;
+  border: black 1px solid;
 }
 
 .cell {

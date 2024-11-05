@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="App">
       <h1>Numberlink Puzzle</h1>
-      <Grid />
+      <Grid difficulty={6} />
     </div>
   )
 }
