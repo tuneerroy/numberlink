@@ -97,7 +97,7 @@ function Puzzle() {
             >
                 New Puzzle
             </button>
-            <Grid puzzle={puzzle} solution={solution} />
+            {puzzle.length > 0 && <Grid puzzle={puzzle} solution={solution} />}
         </div>
     )
 }

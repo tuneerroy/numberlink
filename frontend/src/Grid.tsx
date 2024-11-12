@@ -12,8 +12,10 @@ interface GridProps {
     solution: number[][]
 }
 
+const copyPuzzle = (puzzle: Cell[][]) => puzzle.map(row => row.map(cell => ({ ...cell })))
+
 const Grid: React.FC<GridProps> = ({ puzzle, solution }) => {
-    const [grid, setGrid] = useState<Cell[][]>(puzzle)
+    const [grid, setGrid] = useState<Cell[][]>(copyPuzzle(puzzle))
     const [dragValue, setDragValue] = useState<number | null>(null)
     const [puzzleSolved, setPuzzleSolved] = useState(false)
 
@@ -50,12 +52,53 @@ const Grid: React.FC<GridProps> = ({ puzzle, solution }) => {
         }
     }
 
+    const setSolution = () => {
+        const newGrid = grid.map(row => row.map(cell => ({ ...cell })))
+        for (let i = 0; i < solution.length; i++) {
+            for (let j = 0; j < solution.length; j++) {
+                newGrid[i][j].value = solution[i][j]
+            }
+        }
+        setGrid(newGrid)
+    }
+
     const handleMouseUp = () => {
         setDragValue(null)
     }
 
     return (
         <>
+            <br />
+            <button
+                onClick={() => setGrid(copyPuzzle(puzzle))}
+                style={{
+                    padding: '10px 20px',
+                    margin: '10px 5px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    borderRadius: '5px',
+                    border: 'none',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease'
+                }}
+            >Reset</button>
+            <button
+                onClick={() => setSolution()}
+                style={{
+                    padding: '10px 20px',
+                    margin: '10px 5px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    borderRadius: '5px',
+                    border: 'none',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease'
+                }}
+            >Solve</button>
             {puzzleSolved && <div>Puzzle Solved!</div>}
             <div
                 className="grid"
