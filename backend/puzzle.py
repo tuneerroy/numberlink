@@ -1,5 +1,6 @@
 import random
 from collections import defaultdict
+from solver import NumberLinkSolver
 
 Puzzle = list[list[int]]
 
@@ -17,6 +18,10 @@ def create_puzzle(grid_size: int) -> tuple[Puzzle, Puzzle]:
             best_puzzle = puzzle
 
     empty_puzzle = remove_solution(best_puzzle)
+
+    soln = NumberLinkSolver(empty_puzzle)
+    best_puzzle = soln.solve()
+
     return empty_puzzle, best_puzzle
 
 
