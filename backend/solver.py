@@ -1,5 +1,4 @@
 from ortools.sat.python import cp_model
-from collections import defaultdict
 
 Puzzle = list[list[int]]
 
@@ -46,6 +45,10 @@ class NumberLinkSolver:
         for val, (start, end) in self.pairs.items():
             # Source is the start of the path (5)
             self.model.Add(self.vars[(start[0], start[1], val, 0)] == 1)
+
+            # Sink appears in path (5)
+            sink_options = [self.vars[(end[0], end[1], val, p)] for p in range(self.n_rows * self.n_cols)]
+            self.model.Add(sum(sink_options) == 1)
 
             # Sink is followed by phantom (5)
             for p in range(1, self.n_rows * self.n_cols):
