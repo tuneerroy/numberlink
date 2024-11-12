@@ -1,23 +1,25 @@
 import random
 from collections import defaultdict
 from solver import NumberLinkSolver
+from generator import GenerateBoard
 
 Puzzle = list[list[int]]
 
 
 def create_puzzle(grid_size: int) -> tuple[Puzzle, Puzzle]:
-    puzzle = create_dominos(int(grid_size))
-    shuffle_dominos(puzzle)
+    # puzzle = create_dominos(int(grid_size))
+    # shuffle_dominos(puzzle)
 
-    best_puzzle = None
-    best_num_dominos = float("inf")
-    for _ in range(10000):
-        puzzle, num_dominos = dominos_to_puzzle(puzzle)
-        if num_dominos < best_num_dominos:
-            best_num_dominos = num_dominos
-            best_puzzle = puzzle
+    # best_puzzle = None
+    # best_num_dominos = float("inf")
+    # for _ in range(10000):
+    #     puzzle, num_dominos = dominos_to_puzzle(puzzle)
+    #     if num_dominos < best_num_dominos:
+    #         best_num_dominos = num_dominos
+    #         best_puzzle = puzzle
 
-    empty_puzzle = remove_solution(best_puzzle)
+    # empty_puzzle = remove_solution(best_puzzle)
+    empty_puzzle = GenerateBoard(grid_size)
 
     soln = NumberLinkSolver(empty_puzzle)
     best_puzzle = soln.solve()
