@@ -90,3 +90,8 @@ def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
         background_tasks.add_task(fill_buffer, difficulty)
 
     return item
+
+@app.post("/solve")
+def solve_puzzle(puzzle: Puzzle) -> Puzzle:
+    # TODO: 
+    return puzzle

@@ -45,6 +45,18 @@
   border: black 1px solid;
 }
 
+.grid:has(.solver) {
+  border: None;
+}
+
 .cell {
   cursor: pointer;
+}
+
+.solver {
+  border: black 0.5px solid;
+}
+
+.error {
+  color: red;
 }
