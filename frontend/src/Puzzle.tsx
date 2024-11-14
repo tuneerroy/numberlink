@@ -30,7 +30,7 @@ function Puzzle() {
                 )
             )
         } catch (err) {
-            console.error(err)
+            console.error("Puzzle fetch error:", err)
         } finally {
             setIsLoading(false)
         }
@@ -46,7 +46,7 @@ function Puzzle() {
                 setDifficultyRange(data)
                 setDifficulty(data.min)
             } catch (err) {
-                console.error(err)
+                console.error("Difficulty range fetch error:", err)
             } finally {
                 setIsLoading(false)
             }

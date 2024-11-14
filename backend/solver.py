@@ -1,3 +1,4 @@
+import itertools
 from ortools.sat.python import cp_model
 
 Puzzle = list[list[int]]
@@ -97,6 +98,9 @@ class NumberLinkSolver:
                         for col in range(self.n_cols):
                             if solver.Value(self.vars[(row, col, number, p)]) == 1:
                                 solution[row][col] = number
+            # for number, p, row, col, in itertools.product(self.pairs, range(self.n_rows * self.n_cols), range(self.n_rows), range(self.n_cols)):
+            #     if solver.Value(self.phantom_vars[(number, p)]) == 1:
+            #         solution[row][col] = number
             return solution
         else:
             return None

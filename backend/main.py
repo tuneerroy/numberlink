@@ -1,5 +1,6 @@
-from collections import deque
+from collections import deque, defaultdict
 from contextlib import asynccontextmanager
+from solver import NumberLinkSolver
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel
 from puzzle import Puzzle, create_puzzle
@@ -93,5 +94,34 @@ def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
 
 @app.post("/solve")
 def solve_puzzle(puzzle: Puzzle) -> Puzzle:
-    # TODO: 
+    # ensure that the puzzle is valid
+    counts = defaultdict(int)
+    for row in puzzle:
+        for val in row:
+            counts[val] += 1
+    for val, count in counts.items():
+        if val == 0:
+            continue
+        if count != 2:
+            raise HTTPException(status_code=400, detail="Invalid puzzle")
+
+    keys = sorted(counts.keys())
+
+    # map to 0-(n-1)
+    mapping = {val: i for i, val in enumerate(keys)}
+    # and back
+    reverse_mapping = {i: val for val, i in mapping.items()}
+
+    puzzle = [[mapping[val] for val in row] for row in puzzle]
+    soln = NumberLinkSolver(puzzle)
+    
+    # TODO: do we have multiple solutions?
+    best_puzzle = soln.solve()
+
+    if best_puzzle is None:
+        raise HTTPException(status_code=400, detail="No solution found")
+
+    # map back to original values
+    puzzle = [[reverse_mapping[val] for val in row] for row in best_puzzle]
+
     return puzzle

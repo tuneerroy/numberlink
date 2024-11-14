@@ -1,4 +1,4 @@
-import SolverGrid, { Cell } from './SolverGrid'
+import SolverGrid from './SolverGrid'
 import { useEffect, useState } from 'react'
 
 interface Range {
@@ -10,15 +10,17 @@ function Solver() {
     const [difficultyRange, setDifficultyRange] = useState<Range>({ min: 6, max: 12 })
     const [difficulty, setDifficulty] = useState(6)
     const [isLoading, setIsLoading] = useState(false)
-    const [puzzle, setPuzzle] = useState<Cell[][]>([])
-    const [hasError, setHasError] = useState(false)
+    const [puzzle, setPuzzle] = useState<number[][]>([])
+    const [error, setError] = useState('')
+    const [editable, setEditable] = useState(true)
 
-    const resetPuzzle = () => {
-        setPuzzle(Array.from({ length: difficulty }, () => Array.from({ length: difficulty }, () => ({ value: 0, isHead: false }))))
+    const resetPuzzle = (length: number) => {
+        setPuzzle(Array.from({ length }, () => Array.from({ length }, () => 0)))
+        setEditable(true)
     }
 
     const solvePuzzle = async () => {
-        setHasError(false)
+        setError('')
         setIsLoading(true)
         try {
             const res = await fetch('http://localhost:8000/solve', {
@@ -26,12 +28,18 @@ function Solver() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ puzzle }),
+                body: JSON.stringify(puzzle),
             })
             const data = await res.json()
-        } catch (err) {
-            setHasError(true)
-            console.error(err)
+            if (!res.ok) {
+                throw new Error(data.detail)
+            }
+            setPuzzle(data)
+            setEditable(false)
+        } catch (err: any) {
+            if (err instanceof Error) {
+                setError(err.message)
+            }
         } finally {
             setIsLoading(false)
         }
@@ -47,7 +55,7 @@ function Solver() {
                 setDifficultyRange(data)
                 setDifficulty(data.min)
             } catch (err) {
-                console.error(err)
+                console.error("Difficulty range fetch error:", err)
             } finally {
                 setIsLoading(false)
             }
@@ -57,7 +65,7 @@ function Solver() {
     }, [])
 
     useEffect(() => {
-        resetPuzzle()
+        resetPuzzle(difficulty)
     }, [difficulty])
 
     if (isLoading) {
@@ -86,7 +94,7 @@ function Solver() {
                 </select>
 
                 <button
-                    onClick={() => resetPuzzle()}
+                    onClick={() => resetPuzzle(difficulty)}
                     style={{
                         padding: '10px 20px',
                         margin: '10px 5px',
@@ -123,8 +131,8 @@ function Solver() {
                 >
                     Solve
                 </button>
-                {hasError && <div className="error">Something went wrong</div>}
-                {puzzle.length > 0 && <SolverGrid puzzle={puzzle} setPuzzle={setPuzzle} />}
+                {error && <div className="error">Error: {error}</div>}
+                {puzzle.length > 0 && <SolverGrid puzzle={puzzle} setPuzzle={setPuzzle} editable={editable} />}
             </div >
         </>
     )

@@ -2,21 +2,18 @@ import React from 'react'
 
 const intToColor = (num: number) => `hsl(${(num * 137.5) % 360}, 70%, 70%)`
 
-export interface Cell {
-    value: number
-    isHead: boolean
-}
-
 interface SolverGridProps {
-    puzzle: Cell[][]
-    setPuzzle: React.Dispatch<React.SetStateAction<Cell[][]>>
+    puzzle: number[][]
+    setPuzzle: React.Dispatch<React.SetStateAction<number[][]>>
+    editable: boolean
 }
 
-const SolverGrid: React.FC<SolverGridProps> = ({ puzzle, setPuzzle }) => {
+const SolverGrid: React.FC<SolverGridProps> = ({ puzzle, setPuzzle, editable }) => {
     const handleMouseClicked = (row: number, col: number, incr: number) => {
-        const cell = puzzle[row][col]
+        if (!editable) return
+
         const maxNum = Math.floor((puzzle.length * puzzle.length) / 2)
-        cell.value = (cell.value + maxNum + 1 + incr) % (maxNum + 1)
+        puzzle[row][col] = (puzzle[row][col] + maxNum + 1 + incr) % (maxNum + 1)
         setPuzzle([...puzzle])
     }
 
@@ -44,8 +41,7 @@ const SolverGrid: React.FC<SolverGridProps> = ({ puzzle, setPuzzle }) => {
                             key={`${rowIndex}-${colIndex}`}
                             className="cell solver"
                             style={{
-                                backgroundColor: cell.value ? intToColor(cell.value) : 'white',
-                                filter: cell.isHead ? 'brightness(0.95)' : 'none',
+                                backgroundColor: cell ? intToColor(cell) : 'white',
                                 width: '40px',
                                 height: '40px',
                                 textAlign: 'center',
@@ -58,7 +54,7 @@ const SolverGrid: React.FC<SolverGridProps> = ({ puzzle, setPuzzle }) => {
                                 onRightClick(rowIndex, colIndex)
                             }}
                         >
-                            {cell.value ? cell.value : ''}
+                            {cell ? cell : ''}
                         </div>
                     ))
                 )}
