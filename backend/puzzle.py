@@ -1,5 +1,6 @@
 import random
 from collections import defaultdict
+
 from constraint_solver_path import ConstraintPathSolver
 from generator_1 import GenerateBoard
 

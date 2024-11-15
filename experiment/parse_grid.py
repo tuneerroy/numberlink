@@ -1199,26 +1199,29 @@ input_grids = """
 ........1.
 """
 
+
 def parse_multiple_grids(input_string):
     # Split the input into individual grids
     grids = input_string.strip().split("\n\n")
-    
+
     all_parsed_grids = []
-    
+
     for grid_string in grids:
-        rows = grid_string.strip().split('\n')
-        
+        rows = grid_string.strip().split("\n")
+
         # Create a dictionary to store unique mappings for letters
         letter_mapping = {}
-        current_number = 10  # Start with 10 to keep numbers distinct from existing digits
-        
+        current_number = (
+            10  # Start with 10 to keep numbers distinct from existing digits
+        )
+
         # Initialize the 2D array for the current grid
         parsed_grid = []
-        
+
         for row in rows:
             parsed_row = []
             for char in row:
-                if char == '.':
+                if char == ".":
                     parsed_row.append(0)
                 elif char.isdigit():  # Keep digits as they are
                     parsed_row.append(int(char))
@@ -1229,10 +1232,11 @@ def parse_multiple_grids(input_string):
                         current_number += 1
                     parsed_row.append(letter_mapping[char])
             parsed_grid.append(parsed_row)
-        
+
         all_parsed_grids.append(parsed_grid)
-    
+
     return all_parsed_grids
+
 
 # Parse all grids
 parsed_grids = parse_multiple_grids(input_grids)

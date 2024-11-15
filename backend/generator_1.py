@@ -5,9 +5,11 @@ pathNum = 0
 # Number of squares covered by paths
 covered = 0
 
+
 # Returns a board of the specified size. Each cell of the board is empty.
 def GetEmptyBoard(size):
     return [[0 for _ in range(size)] for _ in range(size)]
+
 
 # Returns the number of neighbours of cell (k, l) that have already been added
 # to a path.
@@ -32,6 +34,7 @@ def NumAddedNeighbours(board, k, l):
         cnt += 1
     return cnt
 
+
 # Returns the number of neighbours of cell (k, l) that are of the same pair
 def NumSamePairNeighbours(board, k, l, pair):
     n = len(board)
@@ -46,32 +49,62 @@ def NumSamePairNeighbours(board, k, l, pair):
         cnt += 1
     return cnt
 
+
 # Returns whether adding cell (k, l) to the path causes one or more isolated
 # uncovered squares.
 def HasIsolatedSquares(board, k, l, pair, isLastNode):
     n = len(board)
     if isLastNode:
-        if (k != 0 and board[k - 1][l] == 0 and NumAddedNeighbours(board, k - 1, l) == 4 and NumSamePairNeighbours(board, k - 1, l, pair) > 1):
+        if (
+            k != 0
+            and board[k - 1][l] == 0
+            and NumAddedNeighbours(board, k - 1, l) == 4
+            and NumSamePairNeighbours(board, k - 1, l, pair) > 1
+        ):
             return True
-        if (k != n - 1 and board[k + 1][l] == 0 and NumAddedNeighbours(board, k + 1, l) == 4 and NumSamePairNeighbours(board, k + 1, l, pair) > 1):
+        if (
+            k != n - 1
+            and board[k + 1][l] == 0
+            and NumAddedNeighbours(board, k + 1, l) == 4
+            and NumSamePairNeighbours(board, k + 1, l, pair) > 1
+        ):
             return True
-        if (l != 0 and board[k][l - 1] == 0 and NumAddedNeighbours(board, k, l - 1) == 4 and NumSamePairNeighbours(board, k, l - 1, pair) > 1):
+        if (
+            l != 0
+            and board[k][l - 1] == 0
+            and NumAddedNeighbours(board, k, l - 1) == 4
+            and NumSamePairNeighbours(board, k, l - 1, pair) > 1
+        ):
             return True
-        if (l != n - 1 and board[k][l + 1] == 0 and NumAddedNeighbours(board, k, l + 1) == 4 and NumSamePairNeighbours(board, k, l + 1, pair) > 1):
+        if (
+            l != n - 1
+            and board[k][l + 1] == 0
+            and NumAddedNeighbours(board, k, l + 1) == 4
+            and NumSamePairNeighbours(board, k, l + 1, pair) > 1
+        ):
             return True
     else:
-        if (k != 0 and board[k - 1][l] == 0 and NumAddedNeighbours(board, k - 1, l) == 4):
+        if k != 0 and board[k - 1][l] == 0 and NumAddedNeighbours(board, k - 1, l) == 4:
             return True
-        if (k != n - 1 and board[k + 1][l] == 0 and NumAddedNeighbours(board, k + 1, l) == 4):
+        if (
+            k != n - 1
+            and board[k + 1][l] == 0
+            and NumAddedNeighbours(board, k + 1, l) == 4
+        ):
             return True
-        if (l != 0 and board[k][l - 1] == 0 and NumAddedNeighbours(board, k, l - 1) == 4):
+        if l != 0 and board[k][l - 1] == 0 and NumAddedNeighbours(board, k, l - 1) == 4:
             return True
-        if (l != n - 1 and board[k][l + 1] == 0 and NumAddedNeighbours(board, k, l + 1) == 4):
+        if (
+            l != n - 1
+            and board[k][l + 1] == 0
+            and NumAddedNeighbours(board, k, l + 1) == 4
+        ):
             return True
     return False
 
+
 # Locates and returns a random uncovered neighbour of cell (i, j). Additional
-# constraints are enforced during path extension if a non-zero 'pair' is 
+# constraints are enforced during path extension if a non-zero 'pair' is
 # passed. This function ensures that the neighbour returned does not lead to
 # any isolated uncovered squares.
 def GetPathExtensionNeighbour(board, i, j, pair):
@@ -104,13 +137,16 @@ def GetPathExtensionNeighbour(board, i, j, pair):
                     continue
             board[i1][j1] = pair
             # Check whether this neighbour causes isolated empty cells.
-            if HasIsolatedSquares(board, i, j, pair, False) or HasIsolatedSquares(board, i1, j1, pair, True):
+            if HasIsolatedSquares(board, i, j, pair, False) or HasIsolatedSquares(
+                board, i1, j1, pair, True
+            ):
                 board[i1][j1] = 0
                 continue
             # This neighbour is suitable for path extension.
             return [i1, j1]
     # None of the 4 neighbours can extend the path, so return fail.
     return [0, 0]
+
 
 # Tries to add a random path to the board, and returns whether it was
 # successful.
@@ -160,14 +196,19 @@ def AddPath(board_unsolved, board_solved):
         pathlen += 1
         covered += 1
 
+
 # Returns a random permutation of array using Fisher-Yates method.
 def Shuffle(array):
     currentIndex = len(array)
     while currentIndex != 0:
         randomIndex = random.randint(0, currentIndex - 1)
         currentIndex -= 1
-        array[currentIndex], array[randomIndex] = array[randomIndex], array[currentIndex]
+        array[currentIndex], array[randomIndex] = (
+            array[randomIndex],
+            array[currentIndex],
+        )
     return array
+
 
 # Shuffles the pairs on the board since by this method, paths generated
 # earlier will be longer.
@@ -180,6 +221,7 @@ def ShufflePairs(board_unsolved, board_solved, numPairs):
             if board_unsolved[i][j] != 0:
                 board_unsolved[i][j] = nums[board_unsolved[i][j] - 1]
             board_solved[i][j] = nums[board_solved[i][j] - 1]
+
 
 def GenerateBoard(size):
     global pathNum, covered

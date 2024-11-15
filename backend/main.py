@@ -1,11 +1,11 @@
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
+
 from constraint_solver_path import ConstraintPathSolver
 from fastapi import BackgroundTasks, FastAPI, HTTPException
-from pydantic import BaseModel
-from puzzle import Puzzle, create_puzzle
-
 from fastapi.middleware.cors import CORSMiddleware
+from puzzle import Puzzle, create_puzzle
+from pydantic import BaseModel
 
 """
 Backend for Numberlink puzzle game
@@ -92,6 +92,7 @@ def get_puzzle(difficulty: int, background_tasks: BackgroundTasks) -> Item:
 
     return item
 
+
 @app.post("/solve")
 def solve_puzzle(puzzle: Puzzle) -> Puzzle:
     # ensure that the puzzle is valid
@@ -114,7 +115,7 @@ def solve_puzzle(puzzle: Puzzle) -> Puzzle:
 
     puzzle = [[mapping[val] for val in row] for row in puzzle]
     soln = ConstraintPathSolver(puzzle)
-    
+
     # TODO: do we have multiple solutions?
     best_puzzle = soln.solve()
 
