@@ -1,6 +1,6 @@
 from collections import deque, defaultdict
 from contextlib import asynccontextmanager
-from solver import NumberLinkSolver
+from constraint_solver_path import ConstraintPathSolver
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel
 from puzzle import Puzzle, create_puzzle
@@ -113,7 +113,7 @@ def solve_puzzle(puzzle: Puzzle) -> Puzzle:
     reverse_mapping = {i: val for val, i in mapping.items()}
 
     puzzle = [[mapping[val] for val in row] for row in puzzle]
-    soln = NumberLinkSolver(puzzle)
+    soln = ConstraintPathSolver(puzzle)
     
     # TODO: do we have multiple solutions?
     best_puzzle = soln.solve()

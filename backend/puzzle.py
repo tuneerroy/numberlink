@@ -1,7 +1,7 @@
 import random
 from collections import defaultdict
-from solver import NumberLinkSolver
-from generator import GenerateBoard
+from constraint_solver_path import ConstraintPathSolver
+from generator_1 import GenerateBoard
 
 Puzzle = list[list[int]]
 
@@ -21,7 +21,7 @@ def create_puzzle(grid_size: int) -> tuple[Puzzle, Puzzle]:
     # empty_puzzle = remove_solution(best_puzzle)
     empty_puzzle = GenerateBoard(grid_size)
 
-    soln = NumberLinkSolver(empty_puzzle)
+    soln = ConstraintPathSolver(empty_puzzle)
     best_puzzle = soln.solve()
 
     return empty_puzzle, best_puzzle

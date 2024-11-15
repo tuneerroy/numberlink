@@ -3,7 +3,7 @@ from ortools.sat.python import cp_model
 
 Puzzle = list[list[int]]
 
-class NumberLinkSolver:
+class ConstraintPathSolver:
     def __init__(self, puzzle: Puzzle):
         self.puzzle = puzzle
         self.model = cp_model.CpModel()
