@@ -24,7 +24,9 @@ def get_gen_output(arg1: int, arg2: int, arg3: int) -> str:
 
 def get_grids(output):
     def parse_grid(grid):
+        # skip first line (has dimensions)
         grid = grid.split("\n")[1:]
+        # split rows into lists of numbers
         grid = [row.split() for row in grid]
         # get range of numbers
         numbers = {num for row in grid for num in row}
@@ -38,9 +40,14 @@ def get_grids(output):
 
 
 if __name__ == "__main__":
+    NUM_PUZZLES = 1000
+    MIN_DIMENSION = 4
+    MAX_DIMENSION = 11
+    assert MIN_DIMENSION <= MAX_DIMENSION
+
     d = []
-    for dimension in tqdm.tqdm(range(4, 12)):
-        output = get_gen_output(dimension, dimension, 100)
+    for dimension in tqdm.tqdm(range(MIN_DIMENSION, MAX_DIMENSION + 1)):
+        output = get_gen_output(dimension, dimension, NUM_PUZZLES)
         grids = get_grids(output)
         d.append({"dimension": dimension, "grids": grids})
 
