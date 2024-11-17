@@ -1,7 +1,8 @@
 import pycosat
 from collections import defaultdict
 
-# Solver for Numberlink
+Puzzle = list[list[int]]
+
 class PycoPathSolver:
     def __init__(self, puzzle):
         # puzzle is a list of lists of integers where 0 is empty, and any other number is a vertex
@@ -153,16 +154,3 @@ def is_neighbor(vertex1, vertex2):
     x1, y1 = vertex1
     x2, y2 = vertex2
     return abs(x1 - x2) + abs(y1 - y2) == 1
-
-
-# Test the solver
-if __name__ == "__main__":
-    puzzle = [
-        [1, 0, 1],
-        [2, 0, 2],
-        [3, 0, 3]
-    ]
-
-    solver = PycoPathSolver(puzzle)
-    solution = solver.solve()
-    print(solution)  # Expected output: [[1, 1, 1], [2, 2, 2], [3, 3, 3]]

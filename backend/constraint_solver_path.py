@@ -4,7 +4,6 @@ from ortools.sat.python import cp_model
 
 Puzzle = list[list[int]]
 
-
 class ConstraintPathSolver:
     def __init__(self, puzzle: Puzzle):
         self.puzzle = puzzle
