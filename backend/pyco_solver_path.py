@@ -35,7 +35,9 @@ class PycoPathSolver:
         else:
             vertex_num = 0
 
-        ans = vertex_num * num_paths * (n + 1) + index * (n + 1) + position
+        # index is based on how many paths we have
+        ans = vertex_num * num_paths * (n**2 + 1) + index * (n**2 + 1) + position
+        # +1 because we start from 1
         return ans + 1
 
     def inverse_x(self, var):
@@ -43,14 +45,15 @@ class PycoPathSolver:
         num_paths = self.num_paths
 
         var -= 1
-        vertex_num, index_position = divmod(var, num_paths * (n + 1))
-        index, position = divmod(index_position, n + 1)
 
+        rest, position = divmod(var, n**2 + 1)
+        vertex_num, index = divmod(rest, num_paths)
         if vertex_num == 0:
             vertex = None
         else:
             vertex_num -= 1
-            x, y = divmod(vertex_num, n)
+            x = vertex_num // n
+            y = vertex_num % n
             vertex = (x, y)
 
         return vertex, index, position
@@ -61,7 +64,11 @@ class PycoPathSolver:
 
         clauses = []
         for vertex in self.vertices:
-            literals = [self.x(vertex, index, position) for index in range(num_paths) for position in range(n + 1)]
+            literals = [
+                self.x(vertex, index, position)
+                for index in range(num_paths)
+                for position in range(n**2 + 1)
+            ]
             clauses += exactly_one(literals)
         return clauses
 
@@ -71,8 +78,10 @@ class PycoPathSolver:
 
         clauses = []
         for index in range(num_paths):
-            for position in range(n + 1):
-                literals = [self.x(vertex, index, position) for vertex in self.vertices] + [self.x(None, index, position)]
+            for position in range(n**2 + 1):
+                literals = [self.x(vertex, index, position) for vertex in self.vertices] + [
+                    self.x(None, index, position)
+                ]
                 clauses += exactly_one(literals)
         return clauses
 
@@ -82,8 +91,10 @@ class PycoPathSolver:
 
         clauses = []
         for index in range(num_paths):
-            for position in range(n):
-                clauses.append([-self.x(None, index, position), self.x(None, index, position + 1)])
+            for position in range(n**2):
+                clauses.append(
+                    [-self.x(None, index, position), self.x(None, index, position + 1)]
+                )
         return clauses
 
     def consecutive_vertices_along_path(self):
@@ -93,7 +104,7 @@ class PycoPathSolver:
 
         clauses = []
         for index in range(num_paths):
-            for position in range(n):
+            for position in range(n**2):
                 for vertex1 in self.vertices:
                     for vertex2 in self.vertices:
                         if not is_neighbor(vertex1, vertex2):
@@ -109,8 +120,12 @@ class PycoPathSolver:
         clauses = []
         for index in range(num_paths):
             clauses.append([x(pairs[index][0], index, 0)])
-            for position in range(n):
-                clauses.append([-x(pairs[index][1], index, position), x(None, index, position + 1)])
+            for position in range(n**2):
+                clauses.append(
+                    [-x(pairs[index][1], index, position), x(None, index, position + 1)]
+                )
+            literals = [x(pairs[index][1], index, position) for position in range(n**2)]
+            clauses += exactly_one(literals)
         return clauses
 
     def solve(self):
@@ -134,6 +149,8 @@ class PycoPathSolver:
                 if vertex is None:
                     continue
                 x, y = vertex
+                if solution[x][y] != 0:
+                    raise ValueError("Multiple paths in the same cell")
                 solution[x][y] = index + 1
 
         return solution
