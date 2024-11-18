@@ -1,24 +1,30 @@
 # Numberlink Solver
 
 ## Group Members
+
 - Arush Mehrotra
 - Tuneer Roy
 
 ## Project Overview
+
 The **Numberlink Solver** project is a full-stack web application designed to solve and analyze Numberlink puzzles. The project features automatic puzzle generation, custom puzzle creation, and algorithmic solvers implemented using various approaches. We have also focused on benchmarking solver performance to provide insights into the efficiency and scalability of different solving algorithms.
 
 ### Features
+
 1. **Web Application**:
+
    - Built using React for the frontend and FastAPI for the backend.
    - Users can solve auto-generated puzzles or create their own custom puzzles.
    - Provides a responsive and intuitive user interface.
 
 2. **Solvers**:
+
    - **Constraint Programming Solver**: Leverages constraints for optimal path finding.
    - **SAT Solver (Path-Based)**: Encodes paths as SAT clauses for solving.
    - **SAT Solver (Edge-Based)**: Encodes grid edges as SAT clauses for efficient solving.
 
 3. **Puzzle Generation**:
+
    - Two distinct algorithms (`generator_1.py`, `generator_2.py`) are implemented to generate solvable puzzles of varying sizes (from 5x5 to 12x12). `generator_3.py` is borrowed from [https://github.com/thomasahle/numberlink](https://github.com/thomasahle/numberlink) to generate interesting puzzles used for benchmarking.
 
 4. **Benchmarking**:
@@ -31,12 +37,14 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 ## File Structure and Explanations
 
 ### Backend
+
 - **`main.py`**: Entry point for the FastAPI server, defining API endpoints for puzzle generation and solving.
 - **`puzzle.py`**: Contains utility functions for generating puzzles.
 - **`generators/`**: Houses logic for automatic puzzle generation using two distinct algorithms.
 - **`solvers/`**: Includes the three solver implementations (Constraint Programming, Path-Based SAT, and Edge-Based SAT).
 
 ### Experiment
+
 - **`benchmarking.ipynb`**: Jupyter Notebook for evaluating and visualizing solver performance.
 - **`generate_puzzles.py`**: Script to generate test puzzles for benchmarking.
 - **`parse_grid.py`**: Helper functions for parsing puzzle grids from JSON or CSV formats.
@@ -44,6 +52,7 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 - **`results.csv`**: Stores benchmarking results, such as solver runtimes and complexity metrics.
 
 ### Frontend
+
 - **`src/`**: Contains all React components and app logic for the web interface.
 - **`public/`**: Static assets used in the application, such as images or icons.
 
@@ -52,8 +61,9 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 ## How to Run the Project
 
 ### Prerequisites
-1. Install **Python 3.10+**.
-2. Install **Node.js 18+** and npm.
+
+1. Install **Python 3.10** (`pyenv` recommended for version management)
+2. Install **Node.js 18+** and `npm`.
 3. Install **Poetry** for Python dependency management:
    - Run the following command to install Poetry:
      ```bash
@@ -63,31 +73,37 @@ The **Numberlink Solver** project is a full-stack web application designed to so
      ```bash
      poetry --version
      ```
+
 ### Project Setup
+
 1. Clone the repository:
    ```bash
    git clone <repository-url>
    ```
 
 ### Backend Setup
-1. Inside the backend/ directory, run:
-    `poetry install`
+
+1. Inside the root directory, run:
+   `poetry install --no-root`
 2. Activate the virtual environment:
-    `poetry shell`
+   `poetry shell`
 3. Run the FastAPI server:
-    `fastapi dev main.py`
+   `fastapi dev backend/main.py`
 
 ### Frontend Setup
+
 1. Inside the frontend/ directory, run:
-    `npm install`
+   `npm install`
 2. Start the frontend development server:
-    `npm start`
+   `npm start`
 3. Access the web application at http://localhost:3000
 
 ### Benchmarking
+
 1. Inside the experiment/ directory, run:
-    `benchmarking.ipynb`
+   `benchmarking.ipynb`
 
 ### References
+
 1. [https://github.com/thomasahle/numberlink](https://github.com/thomasahle/numberlink) -> to generate puzzles for benchmarking
 2. [INF-421](https://www.lix.polytechnique.fr/~pilaud/enseignement/TP/DIX/INF421/1819/material/numberlink.pdf) -> gave us ideas on how to implement the solvers
