@@ -89,4 +89,5 @@ The **Numberlink Solver** project is a full-stack web application designed to so
     `benchmarking.ipynb`
 
 ### References
-
+1. [https://github.com/thomasahle/numberlink](https://github.com/thomasahle/numberlink) -> to generate puzzles for benchmarking
+2. [INF-421](https://www.lix.polytechnique.fr/~pilaud/enseignement/TP/DIX/INF421/1819/material/numberlink.pdf) -> gave us ideas on how to implement the solvers
