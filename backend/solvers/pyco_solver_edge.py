@@ -1,7 +1,9 @@
-import pycosat
 from collections import defaultdict
 
+import pycosat
+
 Puzzle = list[list[int]]
+
 
 class PycoEdgeSolver:
     def __init__(self, puzzle):
@@ -43,6 +45,7 @@ class PycoEdgeSolver:
         """
         Maps an edge and path index to a unique variable
         """
+
         def edge_to_num(edge):
             v, w = edge
             x1, y1 = v
@@ -97,7 +100,11 @@ class PycoEdgeSolver:
                 continue
 
             # Require at least one edge across all paths
-            literals = [self.x(e, i) for e in self.vertex_to_edges[v] for i in range(self.num_paths)]
+            literals = [
+                self.x(e, i)
+                for e in self.vertex_to_edges[v]
+                for i in range(self.num_paths)
+            ]
             clauses += at_least_one(literals)
 
             # Require at least two edges per vertex for each path
@@ -107,7 +114,9 @@ class PycoEdgeSolver:
                 for literal in literals:
                     clause_copy = clause.copy()
                     clause_copy.remove(literal)
-                    clause_copy.append(-literal)  # If literal is True, one of the others must be True
+                    clause_copy.append(
+                        -literal
+                    )  # If literal is True, one of the others must be True
                     clauses.append(clause_copy)
 
         return clauses
@@ -138,11 +147,14 @@ class PycoEdgeSolver:
 def at_least_one(literals):
     return [literals]
 
+
 def none(literals):
     return [[-literal] for literal in literals]
 
+
 def at_most_one(literals):
     return [[-l1, -l2] for l1 in literals for l2 in literals if l1 < l2]
+
 
 def exactly_one(literals):
     return at_least_one(literals) + at_most_one(literals)
@@ -150,11 +162,7 @@ def exactly_one(literals):
 
 # Test the solver
 if __name__ == "__main__":
-    puzzle = [
-        [1, 0, 1],
-        [2, 0, 2],
-        [3, 0, 3]
-    ]
+    puzzle = [[1, 0, 1], [2, 0, 2], [3, 0, 3]]
 
     solver = NumberLinkSolver(puzzle)
     solution = solver.solve()

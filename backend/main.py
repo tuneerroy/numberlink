@@ -1,13 +1,14 @@
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from puzzle import Puzzle, create_puzzle
 from solvers.constraint_solver_path import ConstraintPathSolver
 from solvers.pyco_solver_edge import PycoEdgeSolver
 from solvers.pyco_solver_path import PycoPathSolver
-from fastapi import BackgroundTasks, FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from puzzle import Puzzle, create_puzzle
-from pydantic import BaseModel
 
 """
 Backend for Numberlink puzzle game

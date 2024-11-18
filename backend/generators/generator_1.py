@@ -84,7 +84,11 @@ def has_isolated_squares(board, k, l, pair, isLastNode):
         ):
             return True
     else:
-        if k != 0 and board[k - 1][l] == 0 and num_added_neighbours(board, k - 1, l) == 4:
+        if (
+            k != 0
+            and board[k - 1][l] == 0
+            and num_added_neighbours(board, k - 1, l) == 4
+        ):
             return True
         if (
             k != n - 1
@@ -92,7 +96,11 @@ def has_isolated_squares(board, k, l, pair, isLastNode):
             and num_added_neighbours(board, k + 1, l) == 4
         ):
             return True
-        if l != 0 and board[k][l - 1] == 0 and num_added_neighbours(board, k, l - 1) == 4:
+        if (
+            l != 0
+            and board[k][l - 1] == 0
+            and num_added_neighbours(board, k, l - 1) == 4
+        ):
             return True
         if (
             l != n - 1
@@ -223,7 +231,7 @@ def shuffle_pairs(board_unsolved, board_solved, numPairs):
             board_solved[i][j] = nums[board_solved[i][j] - 1]
 
 
-def generate_board_1(size):
+def generate_board(size: int) -> tuple[list[list[int], list[list[int]]]]:
     global pathNum, covered
     board_unsolved = get_empty_board(size)
     board_solved = get_empty_board(size)

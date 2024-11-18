@@ -1,7 +1,9 @@
-import pycosat
 from collections import defaultdict
 
+import pycosat
+
 Puzzle = list[list[int]]
+
 
 class PycoPathSolver:
     def __init__(self, puzzle):
@@ -80,9 +82,9 @@ class PycoPathSolver:
         clauses = []
         for index in range(num_paths):
             for position in range(n**2 + 1):
-                literals = [self.x(vertex, index, position) for vertex in self.vertices] + [
-                    self.x(None, index, position)
-                ]
+                literals = [
+                    self.x(vertex, index, position) for vertex in self.vertices
+                ] + [self.x(None, index, position)]
                 clauses += exactly_one(literals)
         return clauses
 
@@ -109,7 +111,12 @@ class PycoPathSolver:
                 for vertex1 in self.vertices:
                     for vertex2 in self.vertices:
                         if not is_neighbor(vertex1, vertex2):
-                            clauses.append([-x(vertex1, index, position), -x(vertex2, index, position + 1)])
+                            clauses.append(
+                                [
+                                    -x(vertex1, index, position),
+                                    -x(vertex2, index, position + 1),
+                                ]
+                            )
         return clauses
 
     def source_and_sink(self):
@@ -161,11 +168,14 @@ class PycoPathSolver:
 def at_least_one(literals):
     return [literals]
 
+
 def at_most_one(literals):
     return [[-l1, -l2] for l1 in literals for l2 in literals if l1 < l2]
 
+
 def exactly_one(literals):
     return at_least_one(literals) + at_most_one(literals)
+
 
 def is_neighbor(vertex1, vertex2):
     x1, y1 = vertex1

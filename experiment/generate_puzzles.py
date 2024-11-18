@@ -39,6 +39,12 @@ def get_grids(output):
     return [parse_grid(grid) for grid in grids if grid]
 
 
+def generate_grid(dimension, num_puzzles):
+    output = get_gen_output(dimension, dimension, num_puzzles)
+    grids = get_grids(output)
+    return grids
+
+
 if __name__ == "__main__":
     NUM_PUZZLES = 1000
     MIN_DIMENSION = 4
@@ -47,8 +53,7 @@ if __name__ == "__main__":
 
     d = []
     for dimension in tqdm.tqdm(range(MIN_DIMENSION, MAX_DIMENSION + 1)):
-        output = get_gen_output(dimension, dimension, NUM_PUZZLES)
-        grids = get_grids(output)
+        grids = generate_grid(dimension, NUM_PUZZLES)
         d.append({"dimension": dimension, "grids": grids})
 
     with open("puzzles.json", "w") as f:

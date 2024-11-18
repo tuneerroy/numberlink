@@ -1,11 +1,21 @@
-from generators.generator_1 import generate_board_1
-from generators.generator_2 import generate_board_2
+from generators import generator_1, generator_2, generator_3
 
 Puzzle = list[list[int]]
 
+generators = [
+    generator_1.generate_board,
+    generator_2.generate_board,
+    generator_3.generate_board,
+]
 
-def create_puzzle(grid_size: int) -> tuple[Puzzle, Puzzle]:
-    return generate_board_1(grid_size)
+
+def get_number_of_generators() -> int:
+    return len(generators)
+
+
+def create_puzzle(grid_size: int, generator: int = 0) -> tuple[Puzzle, Puzzle]:
+    return generators[generator](grid_size)
+
 
 def print_puzzle(puzzle: Puzzle):
     max_width = max(len(str(num)) for row in puzzle for num in row)
@@ -26,30 +36,5 @@ if __name__ == "__main__":
         print("Grid size must be at least 2.")
         exit(1)
 
-    puzzle = create_dominos(int(grid_size))
-
-    print("Original puzzle:")
+    puzzle = create_puzzle(grid_size)
     print_puzzle(puzzle)
-
-    print("\nShuffled puzzle:")
-    shuffle_dominos(puzzle)
-    print_puzzle(puzzle)
-
-    print("\nFinal puzzle:")
-    best_puzzle = None
-    best_num_dominos = float("inf")
-    for _ in range(10000):
-        puzzle, num_dominos = dominos_to_puzzle(puzzle)
-        if num_dominos < best_num_dominos:
-            best_num_dominos = num_dominos
-            best_puzzle = puzzle
-
-    print_puzzle(puzzle)
-
-    puzzle, solution = create_puzzle(grid_size)
-
-    print("\nEmpty puzzle:")
-    print_puzzle(puzzle)
-
-    print("\nSolution:")
-    print_puzzle(solution)

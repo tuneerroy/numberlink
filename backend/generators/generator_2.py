@@ -3,7 +3,8 @@ from collections import defaultdict
 
 Puzzle = list[list[int]]
 
-def generate_board_2(grid_size: int) -> tuple[Puzzle, Puzzle]:
+
+def generate_board(grid_size: int) -> tuple[Puzzle, Puzzle]:
     puzzle = create_dominos(int(grid_size))
     shuffle_dominos(puzzle)
 
@@ -18,6 +19,7 @@ def generate_board_2(grid_size: int) -> tuple[Puzzle, Puzzle]:
     empty_puzzle = remove_solution(best_puzzle)
 
     return empty_puzzle, best_puzzle
+
 
 def remove_solution(puzzle: Puzzle) -> Puzzle:
     # need to find the dominos that have num neighbors = 1

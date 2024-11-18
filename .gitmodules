@@ -1,3 +1,6 @@
 [submodule "experiment/numberlink"]
 	path = experiment/numberlink
 	url = https://github.com/thomasahle/numberlink.git
+[submodule "backend/generators/numberlink"]
+	path = backend/generators/numberlink
+	url = https://github.com/thomasahle/numberlink.git
