@@ -60,10 +60,9 @@ def generate_board(size: int) -> tuple[list[list[int], list[list[int]]]]:
 
 
 if __name__ == "__main__":
-    NUM_PUZZLES = 100
+    NUM_PUZZLES = 10
     MIN_DIMENSION = 4
     MAX_DIMENSION = 11
-    MAX_DIMENSION = 4  # TODO: remove this line
     assert MIN_DIMENSION <= MAX_DIMENSION
 
     d = []
