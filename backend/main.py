@@ -1,7 +1,9 @@
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 
-from constraint_solver_path import ConstraintPathSolver
+from solvers.constraint_solver_path import ConstraintPathSolver
+from solvers.pyco_solver_edge import PycoEdgeSolver
+from solvers.pyco_solver_path import PycoPathSolver
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from puzzle import Puzzle, create_puzzle
@@ -114,7 +116,7 @@ def solve_puzzle(puzzle: Puzzle) -> Puzzle:
     reverse_mapping = {i: val for val, i in mapping.items()}
 
     puzzle = [[mapping[val] for val in row] for row in puzzle]
-    soln = ConstraintPathSolver(puzzle)
+    soln = PycoEdgeSolver(puzzle)
 
     # TODO: do we have multiple solutions?
     best_puzzle = soln.solve()
