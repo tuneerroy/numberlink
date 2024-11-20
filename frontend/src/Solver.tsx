@@ -55,11 +55,14 @@ function Solver() {
                     value={difficulty}
                     onChange={(e) => setDifficulty(parseInt(e.target.value))}
                     style={{
-                        padding: '8px 12px',
+                        padding: '10px 20px',
+                        margin: '10px 5px',
                         fontSize: '16px',
+                        fontWeight: 'bold',
                         borderRadius: '5px',
-                        border: '1px solid #ccc',
-                        cursor: 'pointer',
+                        border: 'none',
+                        backgroundColor: '#f1f1f1',
+                        cursor: 'pointer'
                     }}
                 >
                     {Array.from({ length: difficultyRange.max - difficultyRange.min + 1 }, (_, i) => i + difficultyRange.min).map(level => (
