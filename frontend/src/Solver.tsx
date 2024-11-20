@@ -31,7 +31,9 @@ function Solver() {
                 setDifficultyRange(data)
                 setDifficulty(data.min)
             } catch (err) {
-                console.error("Difficulty range fetch error:", err)
+                if (err instanceof Error) {
+                    setError(err.message)
+                }
             } finally {
                 setIsLoading(false)
             }
