@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import asyncio
 
 from puzzle import Puzzle, create_puzzle, get_number_of_generators
 from solvers import solvers
@@ -98,7 +99,7 @@ def get_puzzle(
 
 
 @app.post("/solve/{solver_id}")
-def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
+async def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
     if solver_id not in solvers:
         raise HTTPException(
             status_code=404,
@@ -120,7 +121,12 @@ def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
 
     mapping = {val: i for i, val in enumerate(sorted(counts.keys()))}
     puzzle_cpy = [[mapping[val] for val in row] for row in puzzle]
-    best_puzzle = solver(puzzle_cpy)
+
+    try:
+        # Run the solver with a timeout
+        best_puzzle = await asyncio.wait_for(asyncio.to_thread(solver, puzzle_cpy), timeout=30.0)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Solver timed out after 30 seconds")
 
     if best_puzzle is None:
         raise HTTPException(status_code=400, detail="No solution found")
