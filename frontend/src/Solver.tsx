@@ -1,3 +1,4 @@
+import SolvePuzzle from './SolvePuzzle'
 import SolverGrid from './SolverGrid'
 import { useEffect, useState } from 'react'
 
@@ -15,34 +16,9 @@ function Solver() {
     const [editable, setEditable] = useState(true)
 
     const resetPuzzle = (length: number) => {
+        setError('')
         setPuzzle(Array.from({ length }, () => Array.from({ length }, () => 0)))
         setEditable(true)
-    }
-
-    const solvePuzzle = async () => {
-        setError('')
-        setIsLoading(true)
-        try {
-            const res = await fetch('http://localhost:8000/solve', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(puzzle),
-            })
-            const data = await res.json()
-            if (!res.ok) {
-                throw new Error(data.detail)
-            }
-            setPuzzle(data)
-            setEditable(false)
-        } catch (err: any) {
-            if (err instanceof Error) {
-                setError(err.message)
-            }
-        } finally {
-            setIsLoading(false)
-        }
     }
 
     useEffect(() => {
@@ -112,25 +88,7 @@ function Solver() {
                 >
                     Reset
                 </button>
-                <button
-                    onClick={() => solvePuzzle()}
-                    style={{
-                        padding: '10px 20px',
-                        margin: '10px 5px',
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        borderRadius: '5px',
-                        border: 'none',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s ease'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.backgroundColor = '#45a049'}
-                    onMouseOut={e => e.currentTarget.style.backgroundColor = '#4CAF50'}
-                >
-                    Solve
-                </button>
+                <SolvePuzzle puzzle={puzzle} setPuzzle={setPuzzle} setError={setError} setEditable={setEditable} />
                 {error && <div className="error">Error: {error}</div>}
                 {puzzle.length > 0 && <SolverGrid puzzle={puzzle} setPuzzle={setPuzzle} editable={editable} />}
             </div >

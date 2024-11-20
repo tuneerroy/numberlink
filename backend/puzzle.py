@@ -13,7 +13,7 @@ def get_number_of_generators() -> int:
     return len(generators)
 
 
-def create_puzzle(grid_size: int, generator: int = 0) -> tuple[Puzzle, Puzzle]:
+def create_puzzle(grid_size: int, generator: int) -> tuple[Puzzle, Puzzle]:
     return generators[generator](grid_size)
 
 

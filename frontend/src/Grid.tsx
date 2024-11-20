@@ -9,32 +9,33 @@ export interface Cell {
 
 interface GridProps {
     puzzle: Cell[][]
+    setPuzzle: (puzzle: Cell[][]) => void
     solution: number[][]
 }
 
-const copyPuzzle = (puzzle: Cell[][]) => puzzle.map(row => row.map(cell => ({ ...cell })))
-
-const Grid: React.FC<GridProps> = ({ puzzle, solution }) => {
-    const [grid, setGrid] = useState<Cell[][]>(copyPuzzle(puzzle))
+const Grid: React.FC<GridProps> = ({ puzzle, setPuzzle, solution }) => {
     const [dragValue, setDragValue] = useState<number | null>(null)
     const [puzzleSolved, setPuzzleSolved] = useState(false)
 
     useEffect(() => {
-        if (grid.length === 0) return
-        const isSolved = grid.every((row, rowIndex) =>
+        if (puzzle.length === 0 || puzzle.length !== solution.length) return
+        const isSolved = puzzle.every((row, rowIndex) =>
             row.every((cell, colIndex) => {
                 return cell.value === solution[rowIndex][colIndex]
             })
         )
         setPuzzleSolved(isSolved)
-    }, [grid, solution])
+    }, [puzzle, solution])
 
 
     const handleMouseDown = (row: number, col: number) => {
+        console.log('handleMouseDown')
+        console.log(puzzleSolved)
+        console.log(puzzle)
         if (puzzleSolved) return
-        const cell = grid[row][col]
+        const cell = puzzle[row][col]
         // only if non-zero value
-        if (cell) {
+        if (cell.value) {
             setDragValue(cell.value)
         }
     }
@@ -42,24 +43,12 @@ const Grid: React.FC<GridProps> = ({ puzzle, solution }) => {
     const handleMouseOver = (row: number, col: number) => {
         if (puzzleSolved) return
         if (dragValue) {
-            setGrid(prevGrid => {
-                const newGrid = prevGrid.map(row => [...row])
-                if (!newGrid[row][col].isHead) {
-                    newGrid[row][col].value = dragValue
-                }
-                return newGrid
-            })
-        }
-    }
-
-    const setSolution = () => {
-        const newGrid = grid.map(row => row.map(cell => ({ ...cell })))
-        for (let i = 0; i < solution.length; i++) {
-            for (let j = 0; j < solution.length; j++) {
-                newGrid[i][j].value = solution[i][j]
+            const newGrid = puzzle.map(row => row.map(cell => ({ ...cell })))
+            if (!newGrid[row][col].isHead) {
+                newGrid[row][col].value = dragValue
             }
+            setPuzzle(newGrid)
         }
-        setGrid(newGrid)
     }
 
     const handleMouseUp = () => {
@@ -69,47 +58,17 @@ const Grid: React.FC<GridProps> = ({ puzzle, solution }) => {
     return (
         <>
             <br />
-            <button
-                onClick={() => setGrid(copyPuzzle(puzzle))}
-                style={{
-                    padding: '10px 20px',
-                    margin: '10px 5px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    borderRadius: '5px',
-                    border: 'none',
-                    backgroundColor: '#4CAF50',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s ease'
-                }}
-            >Reset</button>
-            <button
-                onClick={() => setSolution()}
-                style={{
-                    padding: '10px 20px',
-                    margin: '10px 5px',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    borderRadius: '5px',
-                    border: 'none',
-                    backgroundColor: '#4CAF50',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s ease'
-                }}
-            >Solve</button>
             {puzzleSolved && <div>Puzzle Solved!</div>}
             <div
                 className="grid"
                 onMouseUp={handleMouseUp}
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${grid.length}, 40px)`,
-                    gridTemplateRows: `repeat(${grid.length}, 40px)`
+                    gridTemplateColumns: `repeat(${puzzle.length}, 40px)`,
+                    gridTemplateRows: `repeat(${puzzle.length}, 40px)`
                 }}
             >
-                {grid.map((row, rowIndex) =>
+                {puzzle.map((row, rowIndex) =>
                     row.map((cell, colIndex) => (
                         <div
                             key={`${rowIndex}-${colIndex}`}

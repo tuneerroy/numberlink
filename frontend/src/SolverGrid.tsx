@@ -4,7 +4,7 @@ const intToColor = (num: number) => `hsl(${(num * 137.5) % 360}, 70%, 70%)`
 
 interface SolverGridProps {
     puzzle: number[][]
-    setPuzzle: React.Dispatch<React.SetStateAction<number[][]>>
+    setPuzzle: (puzzle: number[][]) => void
     editable: boolean
 }
 
