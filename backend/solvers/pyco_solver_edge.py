@@ -1,9 +1,9 @@
+import itertools
 from collections import defaultdict
 from copy import deepcopy
-import itertools
 
-from tqdm import tqdm
 import pycosat
+from tqdm import tqdm
 
 Puzzle = list[list[int]]
 

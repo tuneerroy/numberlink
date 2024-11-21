@@ -1,9 +1,9 @@
+import asyncio
 from collections import defaultdict, deque
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import asyncio
 
 from puzzle import Puzzle, create_puzzle, get_number_of_generators
 from solvers import solvers

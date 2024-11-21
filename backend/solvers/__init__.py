@@ -1,7 +1,7 @@
-from .utils import solver
 from .constraint_solver_path import ConstraintPathSolver
-from .pyco_solver_path import PycoPathSolver
 from .pyco_solver_edge import PycoEdgeSolver
+from .pyco_solver_path import PycoPathSolver
+from .utils import solver
 
 
 @solver
