@@ -4,45 +4,64 @@ import subprocess
 import tqdm
 
 
-def get_gen_output(arg1: int, arg2: int, arg3: int) -> str:
+def get_gen_output(width: int, height: int, n: int) -> str:
     process = subprocess.run(
         [
             "python",
             "numberlink/gen/gen.py",
-            str(arg1),
-            str(arg2),
-            str(arg3),
+            str(width),
+            str(height),
+            str(n),
             "--zero",
             "--no-colors",
             "--terminal-only",
+            "--solve",
+            "--no-pipes",
         ],
-        capture_output=True,
         text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
+    if process.returncode != 0:
+        print(process.returncode)
+        print(process.stdout)
+        print(process.stderr)
+        raise Exception("Error generating puzzles")
     return process.stdout
 
 
-def get_grids(output):
-    def parse_grid(grid):
-        # skip first line (has dimensions)
-        grid = grid.split("\n")[1:]
-        # split rows into lists of numbers
-        grid = [row.split() for row in grid]
-        # get range of numbers
-        numbers = {num for row in grid for num in row}
-        # map each number to a unique integer
-        number_map = {num: i for i, num in enumerate(numbers, 1)}
-        grid = [[number_map[num] if num != "0" else 0 for num in row] for row in grid]
-        return grid
+def parse_puzzle(grid: str) -> list[list[int]]:
+    rows = grid.split("\n")[1:]  # skip first line (has dimensions)
+    rows = [row.split() for row in rows]  # each val is space delimited
+    return rows
 
-    grids = output.split("\n\n")
-    return [parse_grid(grid) for grid in grids if grid]
+
+def parse_solution(grid: str) -> list[list[int]]:
+    rows = grid.split("\n")[1:]  # skip first line (has "Solution:")
+    rows = [list(row) for row in rows]  # each val is a single char
+    return rows
+
+
+def parse_item(item: tuple[str, str]) -> tuple[list[list[int]], list[list[int]]]:
+    puzzle = parse_puzzle(item[0])
+    solution = parse_solution(item[1])
+    # map each val to unique integer
+    all_numbers = {num for row in puzzle for num in row}
+    number_map = {num: i for i, num in enumerate(all_numbers, 1)}
+    puzzle = [[number_map[num] if num != "0" else 0 for num in row] for row in puzzle]
+    solution = [[number_map[num] for num in row] for row in solution]
+    return {
+        "puzzle": puzzle,
+        "solution": solution,
+    }
 
 
 def generate_grid(dimension, num_puzzles):
-    output = get_gen_output(dimension, dimension, num_puzzles)
-    grids = get_grids(output)
-    return grids
+    output = get_gen_output(dimension, dimension, num_puzzles).strip()
+    grids = output.split("\n\n")
+    # every 2 grids is a puzzle & solution
+    items = [(grids[i], grids[i + 1]) for i in range(0, len(grids), 2)]
+    return [parse_item(item) for item in items]
 
 
 if __name__ == "__main__":
@@ -53,8 +72,8 @@ if __name__ == "__main__":
 
     d = []
     for dimension in tqdm.tqdm(range(MIN_DIMENSION, MAX_DIMENSION + 1)):
-        grids = generate_grid(dimension, NUM_PUZZLES)
-        d.append({"dimension": dimension, "grids": grids})
+        items = generate_grid(dimension, NUM_PUZZLES)
+        d.append({"dimension": dimension, "items": items})
 
     with open("puzzles.json", "w") as f:
         json.dump(d, f, indent=4)

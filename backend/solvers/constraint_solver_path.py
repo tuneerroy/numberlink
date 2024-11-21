@@ -1,5 +1,3 @@
-import itertools
-
 from ortools.sat.python import cp_model
 
 Puzzle = list[list[int]]

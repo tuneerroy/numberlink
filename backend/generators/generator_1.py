@@ -1,250 +1,83 @@
-import random
+import subprocess
 
-# Current path number
-pathNum = 0
-# Number of squares covered by paths
-covered = 0
+import tqdm
 
 
-# Returns a board of the specified size. Each cell of the board is empty.
-def get_empty_board(size):
-    return [[0 for _ in range(size)] for _ in range(size)]
+def get_gen_output(width: int, height: int, n: int) -> str:
+    process = subprocess.run(
+        [
+            "python",
+            "generators/numberlink/gen/gen.py",
+            str(width),
+            str(height),
+            str(n),
+            "--zero",
+            "--no-colors",
+            "--terminal-only",
+            "--solve",
+            "--no-pipes",
+        ],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if process.returncode != 0:
+        print(process.returncode)
+        print(process.stdout)
+        print(process.stderr)
+        raise Exception("Error generating puzzles")
+    return process.stdout
 
 
-# Returns the number of neighbours of cell (k, l) that have already been added
-# to a path.
-def num_added_neighbours(board, k, l):
-    n = len(board)
-    cnt = 0
-    if k == 0:
-        cnt += 1
-    elif board[k - 1][l]:
-        cnt += 1
-    if k == n - 1:
-        cnt += 1
-    elif board[k + 1][l]:
-        cnt += 1
-    if l == 0:
-        cnt += 1
-    elif board[k][l - 1]:
-        cnt += 1
-    if l == n - 1:
-        cnt += 1
-    elif board[k][l + 1]:
-        cnt += 1
-    return cnt
+def parse_puzzle(grid: str) -> list[list[int]]:
+    rows = grid.split("\n")[1:]  # skip first line (has dimensions)
+    rows = [row.split() for row in rows]  # each val is space delimited
+    return rows
 
 
-# Returns the number of neighbours of cell (k, l) that are of the same pair
-def num_same_pair_neighbors(board, k, l, pair):
-    n = len(board)
-    cnt = 0
-    if k != 0 and board[k - 1][l] == pair:
-        cnt += 1
-    if k != n - 1 and board[k + 1][l] == pair:
-        cnt += 1
-    if l != 0 and board[k][l - 1] == pair:
-        cnt += 1
-    if l != n - 1 and board[k][l + 1] == pair:
-        cnt += 1
-    return cnt
+def parse_solution(grid: str) -> list[list[int]]:
+    rows = grid.split("\n")[1:]  # skip first line (has "Solution:")
+    rows = [list(row) for row in rows]  # each val is a single char
+    return rows
 
 
-# Returns whether adding cell (k, l) to the path causes one or more isolated
-# uncovered squares.
-def has_isolated_squares(board, k, l, pair, isLastNode):
-    n = len(board)
-    if isLastNode:
-        if (
-            k != 0
-            and board[k - 1][l] == 0
-            and num_added_neighbours(board, k - 1, l) == 4
-            and num_same_pair_neighbors(board, k - 1, l, pair) > 1
-        ):
-            return True
-        if (
-            k != n - 1
-            and board[k + 1][l] == 0
-            and num_added_neighbours(board, k + 1, l) == 4
-            and num_same_pair_neighbors(board, k + 1, l, pair) > 1
-        ):
-            return True
-        if (
-            l != 0
-            and board[k][l - 1] == 0
-            and num_added_neighbours(board, k, l - 1) == 4
-            and num_same_pair_neighbors(board, k, l - 1, pair) > 1
-        ):
-            return True
-        if (
-            l != n - 1
-            and board[k][l + 1] == 0
-            and num_added_neighbours(board, k, l + 1) == 4
-            and num_same_pair_neighbors(board, k, l + 1, pair) > 1
-        ):
-            return True
-    else:
-        if (
-            k != 0
-            and board[k - 1][l] == 0
-            and num_added_neighbours(board, k - 1, l) == 4
-        ):
-            return True
-        if (
-            k != n - 1
-            and board[k + 1][l] == 0
-            and num_added_neighbours(board, k + 1, l) == 4
-        ):
-            return True
-        if (
-            l != 0
-            and board[k][l - 1] == 0
-            and num_added_neighbours(board, k, l - 1) == 4
-        ):
-            return True
-        if (
-            l != n - 1
-            and board[k][l + 1] == 0
-            and num_added_neighbours(board, k, l + 1) == 4
-        ):
-            return True
-    return False
+def parse_item(item: tuple[str, str]) -> tuple[list[list[int]], list[list[int]]]:
+    puzzle = parse_puzzle(item[0])
+    solution = parse_solution(item[1])
+    # map each val to unique integer
+    all_numbers = {num for row in puzzle for num in row}
+    number_map = {num: i for i, num in enumerate(all_numbers, 1)}
+    puzzle = [[number_map[num] if num != "0" else 0 for num in row] for row in puzzle]
+    solution = [[number_map[num] for num in row] for row in solution]
+    return puzzle, solution
 
 
-# Locates and returns a random uncovered neighbour of cell (i, j). Additional
-# constraints are enforced during path extension if a non-zero 'pair' is
-# passed. This function ensures that the neighbour returned does not lead to
-# any isolated uncovered squares.
-def get_path_extension_neighbor(board, i, j, pair):
-    n = len(board)
-    u = random.randint(0, 3)
-    for v in range(4):
-        u = (u + 1) % 4
-        i1, j1 = i, j
-        if u == 0:
-            if i == 0:
-                continue
-            i1 = i - 1
-        elif u == 1:
-            if j == n - 1:
-                continue
-            j1 = j + 1
-        elif u == 2:
-            if j == 0:
-                continue
-            j1 = j - 1
-        elif u == 3:
-            if i == n - 1:
-                continue
-            i1 = i + 1
-        # Found an uncovered neighbour.
-        if board[i1][j1] == 0:
-            # Check the pair constraint.
-            if pair:
-                if num_same_pair_neighbors(board, i1, j1, pair) > 1:
-                    continue
-            board[i1][j1] = pair
-            # Check whether this neighbour causes isolated empty cells.
-            if has_isolated_squares(board, i, j, pair, False) or has_isolated_squares(
-                board, i1, j1, pair, True
-            ):
-                board[i1][j1] = 0
-                continue
-            # This neighbour is suitable for path extension.
-            return [i1, j1]
-    # None of the 4 neighbours can extend the path, so return fail.
-    return [0, 0]
-
-
-# Tries to add a random path to the board, and returns whether it was
-# successful.
-def add_path(board_unsolved, board_solved):
-    global pathNum, covered
-    n = len(board_unsolved)
-    # Use the next pair.
-    pathNum += 1
-    # Try and locate uncovered neighboring squares (i,j) and (k,l).
-    s = random.randint(0, n * n - 1)
-    for t in range(n * n):
-        s = (s + 1) % (n * n)
-        i = s // n
-        j = s % n
-        if board_solved[i][j] == 0:
-            board_unsolved[i][j] = pathNum
-            board_solved[i][j] = pathNum
-            if has_isolated_squares(board_solved, i, j, pathNum, True):
-                board_solved[i][j] = 0
-                board_unsolved[i][j] = 0
-                continue
-            else:
-                nbr = get_path_extension_neighbor(board_solved, i, j, pathNum)
-                if nbr[0] == 0 and nbr[1] == 0:
-                    board_solved[i][j] = 0
-                    board_unsolved[i][j] = 0
-                    continue
-                else:
-                    # Found path starting with (i, j) and nbr.
-                    break
-    else:
-        # Backtrack
-        pathNum -= 1
-        return False
-
-    pathlen = 2
-    covered += 2
-    while True:
-        i = nbr[0]
-        j = nbr[1]
-        nextNbr = get_path_extension_neighbor(board_solved, i, j, pathNum)
-        if (nextNbr[0] != 0 or nextNbr[1] != 0) and pathlen < n * n:
-            nbr = nextNbr
-        else:
-            board_unsolved[nbr[0]][nbr[1]] = pathNum
-            return True
-        pathlen += 1
-        covered += 1
-
-
-# Returns a random permutation of array using Fisher-Yates method.
-def shuffle(array):
-    currentIndex = len(array)
-    while currentIndex != 0:
-        randomIndex = random.randint(0, currentIndex - 1)
-        currentIndex -= 1
-        array[currentIndex], array[randomIndex] = (
-            array[randomIndex],
-            array[currentIndex],
-        )
-    return array
-
-
-# shuffles the pairs on the board since by this method, paths generated
-# earlier will be longer.
-def shuffle_pairs(board_unsolved, board_solved, numPairs):
-    nums = [i for i in range(1, numPairs + 1)]
-    nums = shuffle(nums)
-    n = len(board_unsolved)
-    for i in range(n):
-        for j in range(n):
-            if board_unsolved[i][j] != 0:
-                board_unsolved[i][j] = nums[board_unsolved[i][j] - 1]
-            board_solved[i][j] = nums[board_solved[i][j] - 1]
+def generate_grid(dimension, num_puzzles):
+    output = get_gen_output(dimension, dimension, num_puzzles).strip()
+    grids = output.split("\n\n")
+    # every 2 grids is a puzzle & solution
+    items = [(grids[i], grids[i + 1]) for i in range(0, len(grids), 2)]
+    return [parse_item(item) for item in items]
 
 
 def generate_board(size: int) -> tuple[list[list[int], list[list[int]]]]:
-    global pathNum, covered
-    board_unsolved = get_empty_board(size)
-    board_solved = get_empty_board(size)
-    # Randomized Numberlink board generation strategy. Repeat until all
-    # squares are covered and satisfy the constraints.
-    while True:
-        board_unsolved = get_empty_board(size)
-        board_solved = get_empty_board(size)
-        pathNum = 0
-        covered = 0
-        while add_path(board_unsolved, board_solved):
-            continue
-        if covered >= size * size:
-            break
-    shuffle_pairs(board_unsolved, board_solved, pathNum)
-    return board_unsolved, board_solved
+    return generate_grid(size, 1)[0]
+
+
+if __name__ == "__main__":
+    NUM_PUZZLES = 10
+    MIN_DIMENSION = 4
+    MAX_DIMENSION = 11
+    assert MIN_DIMENSION <= MAX_DIMENSION
+
+    d = []
+    printables = []
+    for dimension in tqdm.tqdm(range(MIN_DIMENSION, MAX_DIMENSION + 1)):
+        grids = generate_grid(dimension, NUM_PUZZLES)
+        for puzzle, solution in grids:
+            printables.append((puzzle, solution))
+
+    for i, (puzzle, solution) in enumerate(printables):
+        print(f"puzzle_{i} = {puzzle}")
+        print(f"solution_{i} = {solution}")
+        print()

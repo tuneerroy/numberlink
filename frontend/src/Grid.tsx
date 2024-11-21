@@ -29,9 +29,6 @@ const Grid: React.FC<GridProps> = ({ puzzle, setPuzzle, solution }) => {
 
 
     const handleMouseDown = (row: number, col: number) => {
-        console.log('handleMouseDown')
-        console.log(puzzleSolved)
-        console.log(puzzle)
         if (puzzleSolved) return
         const cell = puzzle[row][col]
         // only if non-zero value

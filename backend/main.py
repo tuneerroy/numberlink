@@ -1,5 +1,4 @@
 from collections import defaultdict, deque
-from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -119,25 +118,15 @@ async def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
         if count != 2:
             raise HTTPException(status_code=400, detail="Invalid puzzle")
 
-    mapping = {val: i for i, val in enumerate(sorted(counts.keys()))}
-    puzzle_cpy = [[mapping[val] for val in row] for row in puzzle]
-
     try:
         # Run the solver with a timeout
-        best_puzzle = await asyncio.wait_for(asyncio.to_thread(solver, puzzle_cpy), timeout=30.0)
+        best_puzzle = await asyncio.wait_for(
+            asyncio.to_thread(solver, puzzle), timeout=30.0
+        )
     except asyncio.TimeoutError:
         raise HTTPException(status_code=504, detail="Solver timed out after 30 seconds")
 
     if best_puzzle is None:
         raise HTTPException(status_code=400, detail="No solution found")
-
-    new_mapping = dict()
-    for i in range(len(puzzle)):
-        for j in range(len(puzzle[i])):
-            if puzzle[i][j] != 0:
-                new_mapping[best_puzzle[i][j]] = puzzle[i][j]
-    for i in range(len(best_puzzle)):
-        for j in range(len(best_puzzle[i])):
-            best_puzzle[i][j] = new_mapping[best_puzzle[i][j]]
 
     return best_puzzle
