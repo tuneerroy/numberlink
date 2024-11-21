@@ -10,6 +10,7 @@ type SolverIds = "CP-SAT Path Solver" | "PycoSAT Path Solver" | "PycoSAT Edge So
 
 function SolvePuzzle({ puzzle, setPuzzle, setError, setEditable }: SolvePuzzleProps) {
     const [solver, setSolver] = useState<SolverIds>("PycoSAT Edge Solver")
+    const [loading, setLoading] = useState(false)
 
     const solvePuzzle = async () => {
         if (puzzle.length === 0) return
@@ -31,6 +32,7 @@ function SolvePuzzle({ puzzle, setPuzzle, setError, setEditable }: SolvePuzzlePr
         }
 
         setError('')
+        setLoading(true)
         try {
             const res = await fetch(`http://localhost:8000/solve/${solverId}`, {
                 method: 'POST',
@@ -49,6 +51,8 @@ function SolvePuzzle({ puzzle, setPuzzle, setError, setEditable }: SolvePuzzlePr
             if (err instanceof Error) {
                 setError(err.message)
             }
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -91,7 +95,7 @@ function SolvePuzzle({ puzzle, setPuzzle, setError, setEditable }: SolvePuzzlePr
                     onMouseOver={e => e.currentTarget.style.backgroundColor = '#45a049'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = '#4CAF50'}
                 >
-                    Solve
+                    {loading ? "Solving..." : "Solve"}
                 </button>
             </div >
         </>
