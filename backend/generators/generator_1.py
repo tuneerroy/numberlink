@@ -4,10 +4,12 @@ import tqdm
 
 
 def get_gen_output(width: int, height: int, n: int) -> str:
+    path = __file__
+    process_path = path.replace("generator_1.py", "numberlink/gen/gen.py")
     process = subprocess.run(
         [
             "python",
-            "generators/numberlink/gen/gen.py",
+            process_path,
             str(width),
             str(height),
             str(n),
