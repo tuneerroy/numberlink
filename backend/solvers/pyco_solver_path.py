@@ -161,7 +161,7 @@ class PycoPathSolver:
                     raise ValueError("Multiple paths in the same cell")
                 solution[x][y] = index + 1
 
-        return solution
+        return solution, len(clauses)
 
 
 # HELPER METHODS

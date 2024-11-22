@@ -283,7 +283,7 @@ class PycoEdgeSolver:
                     #     continue
                     solution[x][y] = index + 1
 
-        return fix_cycles(self.puzzle, solution)
+        return fix_cycles(self.puzzle, solution), len(clauses)
         # # TODO: Fix this
         # clauses.insert(0, [-l for l in literals])
         # # print(len(clauses))
@@ -437,7 +437,7 @@ if __name__ == "__main__":
     ]
 
     solver = PycoEdgeSolver(puzzle)
-    solution = solver.solve()
+    solution, _ = solver.solve()
     # print puzzle
     print("Puzzle:")
     for row in puzzle:
