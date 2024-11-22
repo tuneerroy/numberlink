@@ -25,7 +25,7 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 
 3. **Puzzle Generation**:
 
-   - Two distinct algorithms (`generator_1.py`, `generator_2.py`) are implemented to generate solvable puzzles of varying sizes (from 5x5 to 12x12). `generator_3.py` is borrowed from [https://github.com/thomasahle/numberlink](https://github.com/thomasahle/numberlink) to generate interesting puzzles used for benchmarking.
+   - Two distinct algorithms (`generator_2.py`, `generator_3.py`) are implemented to generate solvable puzzles of varying sizes. `generator_1.py` is borrowed from [https://github.com/thomasahle/numberlink](https://github.com/thomasahle/numberlink) to generate interesting puzzles used for benchmarking.
 
 4. **Benchmarking**:
    - Evaluates solver performance on 200 puzzles across various grid sizes.
