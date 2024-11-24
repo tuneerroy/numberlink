@@ -87,7 +87,7 @@ The **Numberlink Solver** project is a full-stack web application designed to so
    `poetry install --no-root`
 2. Activate the virtual environment:
    `poetry shell`
-3. Run the FastAPI server:
+3. Inside the backend/ directory, run the FastAPI server:
    `fastapi dev backend/main.py`
 
 ### Frontend Setup
