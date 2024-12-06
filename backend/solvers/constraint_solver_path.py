@@ -111,6 +111,6 @@ class ConstraintPathSolver:
                         for col in range(self.n_cols):
                             if solver.Value(self.vars[(row, col, number, p)]) == 1:
                                 solution[row][col] = number
-            return solution
+            return solution, None
         else:
-            return None
+            return None, None

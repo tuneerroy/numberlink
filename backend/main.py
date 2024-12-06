@@ -120,7 +120,7 @@ async def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
 
     try:
         # Run the solver with a timeout
-        best_puzzle = await asyncio.wait_for(
+        best_puzzle, _ = await asyncio.wait_for(
             asyncio.to_thread(solver, puzzle), timeout=30.0
         )
     except asyncio.TimeoutError:
