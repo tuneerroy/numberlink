@@ -147,7 +147,7 @@ class PycoPathSolver:
         literals = pycosat.solve(clauses)
 
         if literals == "UNSAT":
-            return None
+            return None, None
 
         n = self.n
         solution = [[0 for _ in range(n)] for _ in range(n)]

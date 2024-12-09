@@ -18,7 +18,7 @@ def solver(f):
             num_clauses = None
 
         if best_puzzle is None:
-            return None
+            return None, None
 
         # Postprocess the solution
         new_mapping = dict()

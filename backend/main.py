@@ -112,11 +112,17 @@ async def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
     for row in puzzle:
         for val in row:
             counts[val] += 1
+
+    del counts[0]
     for val, count in counts.items():
-        if val == 0:
-            continue
         if count != 2:
             raise HTTPException(status_code=400, detail="Invalid puzzle")
+
+    if len(counts.keys()) < 2:
+        # fill in entire puzzle with the same number
+        number = list(counts.keys())[0]
+        best_puzzle = [[number for _ in range(len(puzzle))] for _ in range(len(puzzle))]
+        return best_puzzle
 
     try:
         # Run the solver with a timeout
