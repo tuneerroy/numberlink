@@ -166,7 +166,6 @@ def dominos_to_puzzle(dominos: Puzzle, connections: int = -1) -> Puzzle:
     remaining_parents = [i for i in range(1, max_num + 1) if find(i) == i]
     parent_to_reindex = {parent: i + 1 for i, parent in enumerate(remaining_parents)}
 
-    # TODO: need to check the final bottom right cell
     return [[parent_to_reindex[find(d)] for d in row] for row in dominos], len(
         remaining_parents
     )

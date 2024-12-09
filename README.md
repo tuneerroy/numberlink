@@ -47,7 +47,6 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 
 - **`benchmarking.ipynb`**: Jupyter Notebook for evaluating and visualizing solver performance.
 - **`generate_puzzles.py`**: Script to generate test puzzles for benchmarking.
-- **`parse_grid.py`**: Helper functions for parsing puzzle grids from JSON or CSV formats.
 - **`puzzles.json`**: Stores sample puzzles for testing.
 - **`results.csv`**: Stores benchmarking results, such as solver runtimes and complexity metrics.
 
@@ -77,8 +76,14 @@ The **Numberlink Solver** project is a full-stack web application designed to so
 ### Project Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
+   ```
+
+2. Clone the submodules:
+   ```bash
+   git submodule update --init --recursive
    ```
 
 ### Backend Setup
