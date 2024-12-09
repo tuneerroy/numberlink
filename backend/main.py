@@ -118,6 +118,9 @@ async def solve_puzzle(puzzle: Puzzle, solver_id: str) -> Puzzle:
         if count != 2:
             raise HTTPException(status_code=400, detail="Invalid puzzle")
 
+    if len(counts.keys()) < 1:
+        return [[0 for _ in range(len(puzzle))] for _ in range(len(puzzle))]
+
     if len(counts.keys()) < 2:
         # fill in entire puzzle with the same number
         number = list(counts.keys())[0]
